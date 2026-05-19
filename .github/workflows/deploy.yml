@@ -3,7 +3,6 @@ on:
   push:
     branches: [main]
 
-  # Is se aap GitHub se manually bhi trigger kar sakti hain
   workflow_dispatch:
 
 jobs:
@@ -14,7 +13,10 @@ jobs:
         with:
           fetch-depth: 0
           lfs: true
+          
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: git push https://sawira770:$HF_TOKEN@huggingface.co/spaces/sawira770/traffic-sign-recognition main
+        run: |
+          git remote add space https://sawira770:$HF_TOKEN@huggingface.co/spaces/sawira770/Traffic_sign-recognition
+          git push --force space main
