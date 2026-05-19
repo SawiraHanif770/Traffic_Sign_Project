@@ -12,23 +12,30 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          lfs: true
           
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          # Git configuration set karna taake koi identity error na aaye
+          # 1. Bilkul naye temporary folder mein fresh setup karna
+          mkdir fresh_share
+          
+          # 2. Saara zaroori code naye folder mein copy karna (Faltu folders ko chhor kar)
+          cp -r main.py requirements.txt Dockerfile fresh_share/ 2>/dev/null || true
+          # Agar aapke models ya data ke folders hain toh unhe bhi yahan copy karein:
+          cp -r models fresh_share/ 2>/dev/null || true
+          cp -r scripts fresh_share/ 2>/dev/null || true
+
+          # 3. Naye folder mein ja kar bilkul fresh Git shuru karna (Purani history khatam)
+          cd fresh_share
+          git init
           git config --global user.email "sawira@example.com"
           git config --global user.name "SawiraHanif770"
-
-          # Files ko repository ki history se permanent remove karna taake HF accept kar le
-          git rm --cached -r old_code/Support/Traffic\ sign.gif || true
-          git rm --cached -r outputs/sample_images.png || true
           
-          # Changes ko local temporary commit dena
-          git commit -m "Exclude binary files for Hugging Face" || true
-
-          # Hugging Face par push karna
-          git remote add space https://sawira770:$HF_TOKEN@huggingface.co/spaces/sawira770/Traffic_sign-recognition || true
-          git push --force space main
+          # 4. Saari clean files ko add aur commit karna
+          git add .
+          git commit -m "Fresh deployment without binary history"
+          
+          # 5. Hugging Face par force push kar dena
+          git remote add space https://sawira770:$HF_TOKEN@huggingface.co/spaces/sawira770/Traffic_sign-recognition
+          git push --force space master:main || git push --force space main
