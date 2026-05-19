@@ -18,5 +18,11 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
+          # Faltu binary files ko remove karna jo Hugging Face block kar raha hai
+          git rm --cached -r old_code/Support/Traffic\ sign.gif || true
+          git rm --cached -r outputs/sample_images.png || true
+          git commit -m "Remove binary files for HF sync" || true
+
+          # Hugging Face par push karna
           git remote add space https://sawira770:$HF_TOKEN@huggingface.co/spaces/sawira770/Traffic_sign-recognition
           git push --force space main
